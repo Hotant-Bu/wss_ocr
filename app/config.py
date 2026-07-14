@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
     
     LOG_LEVEL: str = "INFO"
-    LOG_FILE: str = "./logs/app.log"
+    LOG_FILE: str = "../logs/app.log"
     
     class Config:
         env_file = ".env"
