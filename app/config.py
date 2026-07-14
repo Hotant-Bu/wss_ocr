@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
-    RUSTFILE_URL: str = "http://localhost:3001"
+    RUSTFILE_URL: str = "http://localhost:9000"
     RUSTFILE_UPLOAD_PATH: str = "/upload"
     RUSTFILE_DOWNLOAD_PATH: str = "/files"
     
