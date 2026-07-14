@@ -39,8 +39,7 @@
 - **数据库迁移**：Alembic 1.14.0
 - **认证**：JWT（python-jose）
 - **密码加密**：Bcrypt（passlib）
-- **图片处理**：Pillow 11.0.0
-- **异步文件操作**：aiofiles 24.1.0
+- **文件存储**：Rustfile（独立文件服务）
 - **ASGI服务器**：Uvicorn 0.32.1
 
 ## 项目结构
@@ -140,9 +139,10 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
-# OSS本地存储配置
-OSS_STORAGE_PATH=./storage/images
-OSS_BASE_URL=http://localhost:8000/api/v1/files
+# Rustfile文件存储配置
+RUSTFILE_URL=http://localhost:3001
+RUSTFILE_UPLOAD_PATH=/upload
+RUSTFILE_DOWNLOAD_PATH=/files
 
 # 服务器配置
 HOST=0.0.0.0
@@ -164,7 +164,28 @@ sudo systemctl start redis
 redis-server
 ```
 
-### 5. 创建数据库
+### 5. 启动Rustfile文件服务
+
+使用Docker启动Rustfile（推荐）：
+
+```bash
+docker run -d \
+  --name rustfile \
+  -p 3001:3001 \
+  -v $(pwd)/storage:/app/storage \
+  rustfile/rustfile:latest
+```
+
+或者使用二进制文件：
+
+```bash
+# 下载并运行rustfile
+./rustfile --port 3001 --storage-path ./storage
+```
+
+详细配置请参考 [RUSTFILE_SETUP.md](RUSTFILE_SETUP.md)
+
+### 6. 创建数据库
 
 在MySQL中创建数据库：
 
@@ -172,7 +193,7 @@ redis-server
 CREATE DATABASE wss_metal_gauge CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 6. 初始化数据库
+### 7. 初始化数据库
 
 运行初始化脚本创建表结构和初始数据：
 
@@ -187,7 +208,7 @@ python scripts/init_db.py
 - 三个默认用户账号
 - 基础分类数据（压力表、温度表、流量表、液位表）
 
-### 7. 启动服务
+### 8. 启动服务
 
 ```bash
 # 开发模式（自动重载）
@@ -197,7 +218,7 @@ python app/main.py
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 8. 访问API文档
+### 9. 访问API文档
 
 启动后访问以下地址：
 

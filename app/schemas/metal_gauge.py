@@ -39,6 +39,7 @@ class GaugeImageResponse(BaseModel):
     filename: str
     original_filename: Optional[str]
     file_path: str
+    file_url: Optional[str] = None
     file_size: Optional[int]
     mime_type: Optional[str]
     width: Optional[int]
@@ -49,6 +50,12 @@ class GaugeImageResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.file_url and self.file_path:
+            from app.utils.file_handler import file_handler
+            self.file_url = file_handler.get_file_url(self.file_path)
 
 
 class MetalGaugeBase(BaseModel):

@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
-    OSS_STORAGE_PATH: str = "./storage/images"
-    OSS_BASE_URL: str = "http://localhost:8000/api/v1/files"
+    RUSTFILE_URL: str = "http://localhost:3001"
+    RUSTFILE_UPLOAD_PATH: str = "/upload"
+    RUSTFILE_DOWNLOAD_PATH: str = "/files"
     
     HOST: str = "0.0.0.0"
     PORT: int = 8000

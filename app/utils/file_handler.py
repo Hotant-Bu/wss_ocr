@@ -1,17 +1,15 @@
 import os
-import uuid
-import aiofiles
-from pathlib import Path
+import httpx
 from typing import Optional, Tuple
 from fastapi import UploadFile
-from PIL import Image
 from app.config import settings
 
 
 class FileHandler:
     def __init__(self):
-        self.storage_path = Path(settings.OSS_STORAGE_PATH)
-        self.storage_path.mkdir(parents=True, exist_ok=True)
+        self.rustfile_url = settings.RUSTFILE_URL
+        self.upload_path = settings.RUSTFILE_UPLOAD_PATH
+        self.download_path = settings.RUSTFILE_DOWNLOAD_PATH
     
     async def save_image(
         self,
@@ -22,41 +20,50 @@ class FileHandler:
         if file_extension not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']:
             raise ValueError("不支持的图片格式")
         
-        unique_filename = f"{uuid.uuid4()}{file_extension}"
-        
-        folder_path = self.storage_path / subfolder
-        folder_path.mkdir(parents=True, exist_ok=True)
-        
-        file_path = folder_path / unique_filename
-        
         content = await file.read()
-        async with aiofiles.open(file_path, 'wb') as f:
-            await f.write(content)
-        
         file_size = len(content)
         
-        try:
-            with Image.open(file_path) as img:
-                dimensions = img.size
-        except Exception:
-            dimensions = None
+        await file.seek(0)
         
-        relative_path = f"{subfolder}/{unique_filename}"
-        
-        return unique_filename, relative_path, file_size, dimensions
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            files = {
+                'file': (file.filename, content, file.content_type)
+            }
+            
+            data = {
+                'path': subfolder
+            }
+            
+            response = await client.post(
+                f"{self.rustfile_url}{self.upload_path}",
+                files=files,
+                data=data
+            )
+            
+            if response.status_code != 200:
+                raise Exception(f"上传到rustfile失败: {response.text}")
+            
+            result = response.json()
+            
+            file_path = result.get('path') or result.get('file_path') or result.get('url', '')
+            filename = os.path.basename(file_path)
+            
+            return filename, file_path, file_size, None
     
     async def delete_file(self, file_path: str) -> bool:
         try:
-            full_path = self.storage_path / file_path
-            if full_path.exists():
-                full_path.unlink()
-                return True
-            return False
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.delete(
+                    f"{self.rustfile_url}{self.download_path}/{file_path}"
+                )
+                return response.status_code == 200
         except Exception:
             return False
     
     def get_file_url(self, file_path: str) -> str:
-        return f"{settings.OSS_BASE_URL}/{file_path}"
+        if file_path.startswith('http'):
+            return file_path
+        return f"{self.rustfile_url}{self.download_path}/{file_path}"
 
 
 file_handler = FileHandler()
