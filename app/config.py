@@ -3,7 +3,7 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DATABASE_URL: str = "mysql+aiomysql://gift:123456@172.21.236.93:3306/ocr"
     DB_HOST: str = "localhost"
     DB_PORT: int = 3306
     DB_USER: str = "root"
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     REDIS_DECODE_RESPONSES: bool = True
     
-    SECRET_KEY: str
+    SECRET_KEY: str = "ocr-secret-key-change-this-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
