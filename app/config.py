@@ -3,11 +3,11 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "mysql+aiomysql://gift:123456@172.21.236.93:3306/ocr"
-    DB_HOST: str = "localhost"
+    DATABASE_URL: str = "mysql+aiomysql://gift:123456@172.26.255.197:3306/ocr"
+    DB_HOST: str = "172.26.255.197"
     DB_PORT: int = 3306
-    DB_USER: str = "root"
-    DB_PASSWORD: str = "password"
+    DB_USER: str = "gift"
+    DB_PASSWORD: str = "123456"
     DB_NAME: str = "wss_metal_gauge"
     
     REDIS_HOST: str = "localhost"
